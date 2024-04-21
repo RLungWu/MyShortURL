@@ -3,7 +3,6 @@ package routes
 import (
 	"errors"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -113,9 +112,7 @@ func CreateShortURL(c *gin.Context) {
 	ttl, _ := r.TTL(db.Context, c.ClientIP()).Result()
 	resp.XRateLimitRest = ttl / time.Nanosecond / time.Minute
 
-	resp.Custom = os.Getenv("BASE_URL") + "/" + id
+	resp.Custom = "localhost:3000/" + id
 
-
-	
 	c.JSON(http.StatusOK, resp)
 }

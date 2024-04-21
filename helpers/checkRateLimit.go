@@ -3,7 +3,6 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -18,7 +17,7 @@ func CheckRateLimit(ip string) error {
 
 	val, err := r.Get(db.Context, ip).Result()
 	if err == redis.Nil {
-		quota, err := strconv.Atoi(os.Getenv("API_QUOTA"))
+		quota, err := strconv.Atoi("10")
 		if err != nil {
 			return errors.New("invalid API Quota")
 		}

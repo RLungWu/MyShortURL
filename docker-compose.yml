@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: build/MyShortURL/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  db:
+    build: ./build/db
+    ports:
+      - "6379:6379"
+    volumes:
+      - .data:/data

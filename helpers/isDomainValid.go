@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"os"
 	"strings"
 )
 
@@ -9,7 +8,7 @@ func IsDomainValid(url string) bool {
 	// IsDomainValid checks if the domain is valid
 	// It returns true if the domain is allowed
 	// and false if the domain is not allowed
-	domain := os.Getenv("DOMAIN")
+	domain := "localhost:3000"
 	if url == domain {
 		return false
 	}
