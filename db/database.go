@@ -11,7 +11,7 @@ var Context = context.Background()
 func CreateClient(dbno int) *redis.Client {
 	// CreateClient creates a new redis client
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "db:6379",
 		Password: "",
 		DB:       dbno,
 	})

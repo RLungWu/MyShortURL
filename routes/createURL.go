@@ -8,6 +8,7 @@ import (
 
 	"github.com/RLungWu/MyShortURL/db"
 	"github.com/RLungWu/MyShortURL/helpers"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -64,7 +65,7 @@ func CreateShortURL(c *gin.Context) {
 
 	//Check the rate limit
 	err = helpers.CheckRateLimit(c.ClientIP())
-	if err != nil {
+	if  (err != redis.Nil && err != nil) {
 		status := http.StatusInternalServerError
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
@@ -80,9 +81,13 @@ func CreateShortURL(c *gin.Context) {
 	r := db.CreateClient(0)
 	defer r.Close()
 
-	val, _ := r.Get(db.Context, id).Result()
+	val, err := r.Get(db.Context, id).Result()
+	if err != nil && err != redis.Nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error accessing database"})
+		return
+	}
 	if val != "" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Custom URL already exists!"})
+		c.JSON(http.StatusConflict, gin.H{"error": "Custom URL already exists!"})
 		return
 	}
 
@@ -109,7 +114,11 @@ func CreateShortURL(c *gin.Context) {
 	val, _ = r.Get(db.Context, c.ClientIP()).Result()
 	resp.XRateRemaining, _ = strconv.Atoi(val)
 
-	ttl, _ := r.TTL(db.Context, c.ClientIP()).Result()
+	ttl, err := r.TTL(db.Context, c.ClientIP()).Result()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error accessing database TTL"})
+		return
+	}
 	resp.XRateLimitRest = ttl / time.Nanosecond / time.Minute
 
 	resp.Custom = "localhost:3000/" + id
